@@ -70,5 +70,23 @@ export const read = async (ctx) => {
   }
 };
 
-export const remove = (ctx) => {};
+// - 데이터를 삭제할 때는 여러 종류의 함수를 사용할 수 있음
+//     - remove() : 특정 조건을 만족하는 데이터를 모두 지웁니다.
+//     - findByIdAndRemove() : id를 찾아서 지웁니다.
+//         - 우리는 이것을 사용
+//     - findOneAndRemove() : 특정 조건을 만족하는 데이터 하나를 찾아서 제거합니다.
+// → 코드 저장후 Postman으로 조금전 GET 요청했던 그 주소에 DELETE 요청 후 다시 GET 요쳥하면 404오류 뜨면서 ‘Not Found’ 문구 뜰 것
+/*
+  DELETE /api/posts/:id
+*/
+export const remove = async (ctx) => {
+  const { id } = ctx.params;
+  try {
+    await Post.findByIdAndRemove(id).exec();
+    ctx.status = 204; // No Context(성공하기는 했지만 응답할 데이터는 없음)
+  } catch (e) {
+    ctx.throw(500, e);
+  }
+};
+
 export const update = (ctx) => {};
