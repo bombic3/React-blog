@@ -89,4 +89,31 @@ export const remove = async (ctx) => {
   }
 };
 
-export const update = (ctx) => {};
+// - 데이터 업데이트할 때는 findByIdAndUpdate() 함수 사용(세 개의 파라미터)
+// - findByIdAndUpdate( id, 업데이트 내용, 업데이트의 옵션)
+// → 다시 GET /api/posts 요청을 해서 유효한 id 값 복사한 후 해당 id를 가진 포스트를 업데이트 해보기
+// → PATCH 메서드는 데이터의 일부만 업데이트해도 되므로, body에 title만 넣어서 실행해보기
+/*
+  PATCH /api/posts/:id
+  {
+    title: '수정',
+    body: '수정 내용',
+    tags: ['수정', '태그']
+  }
+*/
+export const update = async (ctx) => {
+  const { id } = ctx.params;
+  try {
+    const post = await Post.findByIdAndUpdate(id, ctx.request.body, {
+      new: true, // 이 값을 설정하면 업데이트 된 데이터를 반환합니다.
+      // false일 때는 업데이트 되기 전의 데이터를 반환합니다.
+    }).exec();
+    if (!post) {
+      ctx.status = 404;
+      return;
+    }
+    ctx.body = post;
+  } catch (e) {
+    ctx.throw(500, e);
+  }
+};
