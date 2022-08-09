@@ -1,5 +1,32 @@
-import context from '../../../node_modules/koa/lib/context';
 import Post from '../../models/post';
+import mongoose from 'mongoose';
+/*
+### ObjectId 검증
+
+- 앞서 read API를 실행할 때, id가 올바른 ObjectId 형식이 아니면 500 오류가 발생했었음
+    - 500 오류 : 보통 서버에서 처리하지 않아 내부적으로 문제가 생겼을 때 발생
+- 잘못된 id 전달 → 400 Bad Request 오류(클라이언트가 요청을 잘못 보낸 것)
+⇒  id 값이 올바른 ObjectId 인지 확인해야 함
+- 이 프로젝트에서 현재 ObjectId를 검증해야 하는 API 세 가지
+    - read
+    - remove
+    - update    
+    → 모든 함수에서 이를 검증하기 위해 검증 코드를 각 함수 내부에 일일이 삽입한다면 똑같은 코드가 중복됨
+- 코드를 중복해 넣지 않고, 한 번만 구현한 다음 여러 라우트에 쉽게 적용하는 방법 사용 → 미들웨어 사용
+- posts.ctrl.js 의 코드 상단에 미들웨어 작성하기
+- 그리고 src/api/posts/index.js 에서 ObjectId 검증이 필요한 부분에 방금 만든 미들웨어 추가하기
+*/
+const { ObjectId } = mongoose.Types;
+
+export const checkObjectId = (ctx, next) => {
+  const { id } = ctx.params;
+  if (!ObjectId.isValid(id)) {
+    ctx.status = 400; // Bad Reauest
+    return;
+  }
+  return next();
+};
+
 /*
 - 포스트의 인스턴트를 만들 때는 new 키워드를 사용
 - 그리고 생성자 함수의 파라미터에 정보를 지닌 객체를 넣음
@@ -9,7 +36,6 @@ import Post from '../../models/post';
     - await를 사용하려면 함수를 선언하는 부분 앞에 async 키워드를 넣어야 함
     - 또한, await를 사용할 때는 try/catch 문으로 오류를 처리해야 함
 */
-
 /* 
 POST /api/posts
 { 
