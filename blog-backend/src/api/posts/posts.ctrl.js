@@ -47,6 +47,28 @@ export const list = async (ctx) => {
     ctx.throw(500, e);
   }
 };
-export const read = (ctx) => {};
+
+// - read 함수를 통해 특정 포스트를 id로 찾아서 조회하는 기능 구현
+// - id를 가진 데이터를 조회할 때는 findById() 함수 사용
+// → id의 마지막 문자를 바꾸면 Status 부분에 404 오류가 발생함
+// → 문자열을 몇 개 제거하고 요청하면 500 오류가 발생함
+// : 이는 전달받는 id가 ObjectId 형태가 아니어서 발생하는 서버 오류
+/*
+  GET /api/posts/:id
+*/
+export const read = async (ctx) => {
+  const { id } = ctx.params;
+  try {
+    const post = await Post.findById(id).exec();
+    if (!post) {
+      ctx.status = 404; // Not Found
+      return;
+    }
+    ctx.body = post;
+  } catch (e) {
+    ctx.throw(500, e);
+  }
+};
+
 export const remove = (ctx) => {};
 export const update = (ctx) => {};
