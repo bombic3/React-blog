@@ -110,17 +110,16 @@ export const list = async (ctx) => {
       .sort({ _id: -1 }) // 내림차순 하기
       .limit(10) // 보일 포스트 갯수
       .skip((page - 1) * 10) // 1페이지에는 처음 열 개 불러오고, 2페이지에는 그 다음 열 개를 불러오게게 됨.
+      .lean() // lean() 함수 사용 - 데이터를 처음부터 JSON 형태로 조회가능
       .exec();
     const postCount = await Post.countDocuments().exec(); // 마지막 페이지 번호 알려주기 구현
     ctx.set('Last-Page', Math.ceil(postCount / 10)); // Last-Page라는 커스텀 HTTP 헤더 설정
-    ctx.body = posts
-      .map((post) => post.toJSON()) // find() 를 통해 조회한 데이터는 mongoose 문서 인스턴스의 형태이므로 데이터를 바로 변형할 수 없음
-      // toJSON() 함수 실행하여 JSON 형태로 변환한 뒤 필요한 변형을 일으켜 줘야 함
-      .map((post) => ({
-        ...post,
-        body:
-          post.body.length < 200 ? post.body : `${post.body.slice(0, 200)}...`,
-      })); // body 의 길이가 200자 이상이면 뒤에 ‘…’을 붙이고 문자열을 자르는 기능 구현
+    ctx.body = posts.map((post) => ({
+      // lean() 함수 사용 - 데이터를 처음부터 JSON 형태로 조회가능
+      ...post,
+      body:
+        post.body.length < 200 ? post.body : `${post.body.slice(0, 200)}...`,
+    }));
   } catch (e) {
     ctx.throw(500, e);
   }
