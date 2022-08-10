@@ -19,6 +19,12 @@ UserSchema.methods.checkPassword = async function (password) {
   return result; // true / false
 }; // 파라미터로 받은 비밀번호가 해당 계정의 비밀번호와 일치하는지 검증
 
+UserSchema.methods.serialize = function () {
+  const data = this.toJSON();
+  delete data.hashedPassword;
+  return data;
+}; // hashedPassword 필드가 응답되지 않도록 데이터를 JSON 으로 변환한 후 delete 를 통해 해당 필드를 지워줌
+
 // 스태틱 함수에서의 this는 모델을 가리킴(현재 User를 가리키고 있는 것)
 UserSchema.statics.findByUsername = function (username) {
   return this.findOne({ username });
