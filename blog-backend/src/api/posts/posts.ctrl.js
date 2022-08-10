@@ -108,6 +108,8 @@ export const list = async (ctx) => {
       .limit(10) // 보일 포스트 갯수
       .skip((page - 1) * 10) // 1페이지에는 처음 열 개 불러오고, 2페이지에는 그 다음 열 개를 불러오게게 됨.
       .exec();
+    const postCount = await Post.countDocuments().exec(); // 마지막 페이지 번호 알려주기 구현
+    ctx.set('Last-Page', Math.ceil(postCount / 10)); // Last-Page라는 커스텀 HTTP 헤더 설정
     ctx.body = posts;
   } catch (e) {
     ctx.throw(500, e);
