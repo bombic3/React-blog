@@ -78,12 +78,21 @@ export const write = async (ctx) => {
 //- 데이터를 조회할 때는 인스턴스의 find() 함수 사용
 // - find() 함수를 호출한 후에는 exec()를 붙여 주어야 서버에 쿼리를 요청함
 // - 데이터를 조회할 때 특정 조건을 설정하고, 불러오는 제한도 설정 가능(추후 작성)
+//- 내림차군 : list API 에서 exec() 를 하기 전에 sort() 구문 넣기
+// - sort 함수의 파라미터는 { key: 1 } 형식으로 넣음
+// - key는 정렬(sorting) 할 필드를 설정하는 부분
+//     - 오른쪽 값 1로 설정 = 오름차순
+//     - 오른쪽 값 -1로 설정 = 내림차순
+
+//     → _id 내림차순 위해 : { _id: -1 } 로 설정
 /*
   GET /api/posts
 */
 export const list = async (ctx) => {
   try {
-    const posts = await Post.find().exec();
+    const posts = await Post.find()
+      .sort({ _id: -1 }) // 내림차순 하기
+      .exec();
     ctx.body = posts;
   } catch (e) {
     ctx.throw(500, e);
