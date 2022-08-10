@@ -83,16 +83,30 @@ export const write = async (ctx) => {
 // - key는 정렬(sorting) 할 필드를 설정하는 부분
 //     - 오른쪽 값 1로 설정 = 오름차순
 //     - 오른쪽 값 -1로 설정 = 내림차순
-
 //     → _id 내림차순 위해 : { _id: -1 } 로 설정
+// - 페이지 기능 구현 위한 함수 limit() 함수, skip() 함수
+// - skip() 함수
+//     - ‘넘긴다’라는 의미 : skip 함수에 파라미터로 10을 넣어주면 처음 열 개를 제외하고 그 다음 데이터를 불러옴. 20을 넣으면 처음 20을 제외하고 그 다음 데이터를 불러옴
+//     - skip( (page - 1)*10 ) : 파라미터에 (page - 1)*10 넣어주기. 1페이지에는 처음 열 개 불러오고, 2페이지에는 그 다음 열 개를 불러오게게 됨.
+//     - page 값은 query에서 받아 오도록 설정. 이 값이 없으면 page 값을 1로 간주하여 코드를 작성
 /*
   GET /api/posts
 */
 export const list = async (ctx) => {
+  // query 는 문자열이기 때문에 숫자로 변환해 줘야함
+  // 값이 주어지지 않았다면 1을 기본으로 사용한다.
+  const page = parseInt(ctx.query.page || '1', 10);
+
+  if (page < 1) {
+    ctx.status = 400;
+    return;
+  }
+
   try {
     const posts = await Post.find()
       .sort({ _id: -1 }) // 내림차순 하기
       .limit(10) // 보일 포스트 갯수
+      .skip((page - 1) * 10) // 1페이지에는 처음 열 개 불러오고, 2페이지에는 그 다음 열 개를 불러오게게 됨.
       .exec();
     ctx.body = posts;
   } catch (e) {
