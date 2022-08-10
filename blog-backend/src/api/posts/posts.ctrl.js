@@ -89,6 +89,9 @@ export const write = async (ctx) => {
 //     - ‘넘긴다’라는 의미 : skip 함수에 파라미터로 10을 넣어주면 처음 열 개를 제외하고 그 다음 데이터를 불러옴. 20을 넣으면 처음 20을 제외하고 그 다음 데이터를 불러옴
 //     - skip( (page - 1)*10 ) : 파라미터에 (page - 1)*10 넣어주기. 1페이지에는 처음 열 개 불러오고, 2페이지에는 그 다음 열 개를 불러오게게 됨.
 //     - page 값은 query에서 받아 오도록 설정. 이 값이 없으면 page 값을 1로 간주하여 코드를 작성
+// - body 의 길이가 200자 이상이면 뒤에 ‘…’을 붙이고 문자열을 자르는 기능 구현
+// - find() 를 통해 조회한 데이터는 mongoose 문서 인스턴스의 형태이므로 데이터를 바로 변형할 수 없음
+// - 그 대신 toJSON() 함수 실행하여 JSON 형태로 변환한 뒤 필요한 변형을 일으켜 줘야 함
 /*
   GET /api/posts
 */
@@ -110,7 +113,14 @@ export const list = async (ctx) => {
       .exec();
     const postCount = await Post.countDocuments().exec(); // 마지막 페이지 번호 알려주기 구현
     ctx.set('Last-Page', Math.ceil(postCount / 10)); // Last-Page라는 커스텀 HTTP 헤더 설정
-    ctx.body = posts;
+    ctx.body = posts
+      .map((post) => post.toJSON()) // find() 를 통해 조회한 데이터는 mongoose 문서 인스턴스의 형태이므로 데이터를 바로 변형할 수 없음
+      // toJSON() 함수 실행하여 JSON 형태로 변환한 뒤 필요한 변형을 일으켜 줘야 함
+      .map((post) => ({
+        ...post,
+        body:
+          post.body.length < 200 ? post.body : `${post.body.slice(0, 200)}...`,
+      })); // body 의 길이가 200자 이상이면 뒤에 ‘…’을 붙이고 문자열을 자르는 기능 구현
   } catch (e) {
     ctx.throw(500, e);
   }
