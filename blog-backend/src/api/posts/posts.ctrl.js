@@ -92,6 +92,7 @@ export const list = async (ctx) => {
   try {
     const posts = await Post.find()
       .sort({ _id: -1 }) // 내림차순 하기
+      .limit(10) // 보일 포스트 갯수
       .exec();
     ctx.body = posts;
   } catch (e) {
