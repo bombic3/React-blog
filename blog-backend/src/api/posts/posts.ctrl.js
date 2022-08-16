@@ -18,14 +18,28 @@ import Joi from 'joi';
 - 그리고 src/api/posts/index.js 에서 ObjectId 검증이 필요한 부분에 방금 만든 미들웨어 추가하기
 */
 const { ObjectId } = mongoose.Types;
-
-export const checkObjectId = (ctx, next) => {
+// getPostById (기존 checkObjectId)
+// - 작성자만 포스트 수정,삭제할 수 있도록 구현
+// - 이 작업을 미들웨어에서서 처리하고 싶다면 id로 포스트 조회하는 작업도 alemfdnpdjfh gownjdi gka
+// - 따라서 기존에 마들었던 checkObjectId 를 getPostById 로 바꾸고, 해당 미들웨어에서 id로 포스트를 찾은 후 ctx.state 에 담기
+export const getPostById = async (ctx, next) => {
   const { id } = ctx.params;
   if (!ObjectId.isValid(id)) {
     ctx.status = 400; // Bad Reauest
     return;
   }
-  return next();
+  try {
+    const post = await Post.findById(id);
+    // 포스트가 존재하지 않을 때
+    if (!post) {
+      ctx.status = 404; // Not Found
+      return;
+    }
+    ctx.state.post = post;
+    return next();
+  } catch (e) {
+    ctx.throw(500, e);
+  }
 };
 
 /*
@@ -66,6 +80,7 @@ export const write = async (ctx) => {
     title,
     body,
     tags,
+    user: ctx.state.user,
   });
   try {
     await post.save();
@@ -95,6 +110,9 @@ export const write = async (ctx) => {
 /*
   GET /api/posts
 */
+/*
+  GET /api/posts?username=&tag=&page=
+*/
 export const list = async (ctx) => {
   // query 는 문자열이기 때문에 숫자로 변환해 줘야함
   // 값이 주어지지 않았다면 1을 기본으로 사용한다.
@@ -105,14 +123,21 @@ export const list = async (ctx) => {
     return;
   }
 
+  const { tag, username } = ctx.query;
+  // tag, username 값이 유효하면 객체 안에 넣고, 그렇지 않으면 넣지 않음
+  const query = {
+    ...(username ? { 'user.username': username } : {}),
+    ...(tag ? { tags: tag } : {}),
+  };
+
   try {
-    const posts = await Post.find()
+    const posts = await Post.find(query)
       .sort({ _id: -1 }) // 내림차순 하기
       .limit(10) // 보일 포스트 갯수
       .skip((page - 1) * 10) // 1페이지에는 처음 열 개 불러오고, 2페이지에는 그 다음 열 개를 불러오게게 됨.
       .lean() // lean() 함수 사용 - 데이터를 처음부터 JSON 형태로 조회가능
       .exec();
-    const postCount = await Post.countDocuments().exec(); // 마지막 페이지 번호 알려주기 구현
+    const postCount = await Post.countDocuments(query).exec(); // 마지막 페이지 번호 알려주기 구현
     ctx.set('Last-Page', Math.ceil(postCount / 10)); // Last-Page라는 커스텀 HTTP 헤더 설정
     ctx.body = posts.map((post) => ({
       // lean() 함수 사용 - 데이터를 처음부터 JSON 형태로 조회가능
@@ -133,18 +158,20 @@ export const list = async (ctx) => {
 /*
   GET /api/posts/:id
 */
-export const read = async (ctx) => {
-  const { id } = ctx.params;
-  try {
-    const post = await Post.findById(id).exec();
-    if (!post) {
-      ctx.status = 404; // Not Found
-      return;
-    }
-    ctx.body = post;
-  } catch (e) {
-    ctx.throw(500, e);
-  }
+export const read = (ctx) => {
+  // id로 포스트 찾는 코드 간소화
+  ctx.body = ctx.state.post;
+  // const { id } = ctx.params;
+  // try {
+  //   const post = await Post.findById(id).exec();
+  //   if (!post) {
+  //     ctx.status = 404; // Not Found
+  //     return;
+  //   }
+  //   ctx.body = post;
+  // } catch (e) {
+  //   ctx.throw(500, e);
+  // }
 };
 
 // - 데이터를 삭제할 때는 여러 종류의 함수를 사용할 수 있음
@@ -208,4 +235,16 @@ export const update = async (ctx) => {
   } catch (e) {
     ctx.throw(500, e);
   }
+};
+
+// id로 찾은 포스트가 로그인 중인 사용자가 작성한 포스트인지 확인
+export const checkOwnPost = (ctx, next) => {
+  const { user, post } = ctx.state;
+  if (post.user._id.toString() !== user._id) {
+    // MongoDB에서 조회한 데이터의 id 값을 문자열과 비교할 때는
+    // 반드시 .toString()을 해줘야 함
+    ctx.status = 403; // 만약 사용자의 포스트가 아니라면 403 에러 발생
+    return;
+  }
+  return next();
 };

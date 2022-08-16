@@ -5,6 +5,10 @@ import bodyParser from 'koa-bodyparser';
 import mongoose from 'mongoose';
 
 import api from './api';
+
+// 토큰 검증하기 (미들웨어 적용)
+import jwtMiddleware from './lib/jwtMiddleware';
+
 // 가짜 데이터 불러오기
 // import createFakeData from './createFakeData';
 
@@ -31,6 +35,8 @@ router.use('/api', api.routes()); // api 라우트 적용
 
 // 라우터 적용 전에 bodyParser 적용
 app.use(bodyParser());
+// app 에 (토큰 검증)미들웨어 적용하기
+app.use(jwtMiddleware);
 
 // app 인스턴스에 라우터 적용
 app.use(router.routes()).use(router.allowedMethods());

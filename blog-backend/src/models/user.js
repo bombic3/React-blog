@@ -1,5 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 const UserSchema = new Schema({
   username: String,
@@ -24,6 +25,22 @@ UserSchema.methods.serialize = function () {
   delete data.hashedPassword;
   return data;
 }; // hashedPassword 필드가 응답되지 않도록 데이터를 JSON 으로 변환한 후 delete 를 통해 해당 필드를 지워줌
+
+// 토큰 발급을 위한 generateToken 인스턴스 메소드
+UserSchema.methods.generateToken = function () {
+  const token = jwt.sign(
+    // 첫 번째 파라미터에는 토큰 안에 집어넣고 시픙ㄴ 데이터를 넣습니다.
+    {
+      _id: this.id,
+      username: this.username,
+    },
+    process.env.JWT_SECRET, // 두 번째 파라미터에는 JWT 암호를 넣습니다.
+    {
+      expiresIn: '7d', // 7일 동안 유효함
+    },
+  );
+  return token;
+};
 
 // 스태틱 함수에서의 this는 모델을 가리킴(현재 User를 가리키고 있는 것)
 UserSchema.statics.findByUsername = function (username) {
