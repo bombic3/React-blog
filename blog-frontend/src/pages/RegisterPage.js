@@ -1,12 +1,12 @@
 import AuthTemplate from "../components/auth/AuthTemplate";
 import AuthForm from "../components/auth/AuthForm";
 
-const PostListPage = () => {
+const RegisterPage = () => {
   return (
     <AuthTemplate>
-      <AuthForm />
+      <AuthForm type='register' />
     </AuthTemplate>
   );
 };
 
-export default PostListPage;
+export default RegisterPage;

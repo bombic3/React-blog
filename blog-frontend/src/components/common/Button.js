@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, {css} from 'styled-components';
 import palette from '../../lib/styles/palette';
 
 // - 사실 이 컴포넌트에서 StyledButton을 바로 내보내도 상관없음
@@ -18,6 +18,24 @@ const StyledButton = styled.button`
   &:hover {
     background: ${palette.gray[6]};
   }
+
+  ${props =>
+  props.fullWidth &&
+    css`
+      padding-top: 0.75rem;
+      padding-bottom: 0.75rem;
+      width: 100%;
+      font-size: 1.125rem;
+    `}
+
+  ${props =>
+  props.cyan &&
+    css`
+      background: ${palette.cyan[5]};
+      &:hover {
+        background: ${palette.cyan[4]};
+      }
+    `}
 `;
 
 // Button 컴포넌트를 만드는 과정에서 {…props}를 StyledButton에 설정해 줬는데 이는 Button이 받아 오는 props를 모두 StyledButton에 전달한다는 의미
