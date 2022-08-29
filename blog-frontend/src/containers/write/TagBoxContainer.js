@@ -15,11 +15,7 @@ const TagBoxContainer = () => {
     );
   };
 
-  return (
-    <div>
-      <TagBox onChangeTags={onChangeTags} tags={tags} />
-    </div>
-  );
+  return <TagBox onChangeTags={onChangeTags} tags={tags} />;
 };
 
 export default TagBoxContainer;

@@ -19,11 +19,7 @@ const EditorContainer = () => {
       dispatch(initialize());
     };
   }, [dispatch]);
-  return (
-    <div>
-      <Editor onChangeField={onChangeField} title={title} body={body} />
-    </div>
-  );
+  return <Editor onChangeField={onChangeField} title={title} body={body} />;
 };
 
 export default EditorContainer;
