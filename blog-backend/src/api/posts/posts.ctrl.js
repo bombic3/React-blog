@@ -19,6 +19,40 @@ import sanitizeHtml from 'sanitize-html';
 - 그리고 src/api/posts/index.js 에서 ObjectId 검증이 필요한 부분에 방금 만든 미들웨어 추가하기
 */
 const { ObjectId } = mongoose.Types;
+
+/*
+- 포스트의 작성 및 수정에 관한 것
+  - 포스트를 작성할 때는 모든 HTML을 제거하는 것이 아니라,
+    악성 스크립트가 주입되는 것을 방지하기 위해 특정 태그들만 허용해준다
+- sanitize-html을 사용해 특정 태그와 특정 속성만 허용해주기
+- 코드 상단에 sanitizeOptions 객체 선언 후 write 함수와 update 함수 수정
+  - sanitizeOptions 객체는 HTML을 필터링할 때 허용할 것을 설정해 줌
+  - 공식 메뉴얼 참고 (https://www.npmjs.com/package/sanitize-html)
+*/
+const sanitizeOption = {
+  allowedTags: [
+    'h1',
+    'h2',
+    'b',
+    'i',
+    'u',
+    's',
+    'p',
+    'ul',
+    '0l',
+    'li',
+    'blockquote',
+    'a',
+    'img',
+  ],
+  allowedAttributes: {
+    a: ['href', 'name', 'target'],
+    img: ['src'],
+    li: ['class'],
+  },
+  allowedSchemes: ['data', 'http'],
+};
+
 // getPostById (기존 checkObjectId)
 // - 작성자만 포스트 수정,삭제할 수 있도록 구현
 // - 이 작업을 미들웨어에서서 처리하고 싶다면 id로 포스트 조회하는 작업도 alemfdnpdjfh gownjdi gka
@@ -79,7 +113,7 @@ export const write = async (ctx) => {
   const { title, body, tags } = ctx.request.body;
   const post = new Post({
     title,
-    body,
+    body: sanitizeHtml(body, sanitizeOption),
     tags,
     user: ctx.state.user,
   });
