@@ -2,21 +2,29 @@ import React, { useEffect } from 'react';
 import WriteActionButtons from '../../components/write/WriteActionButtons';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { writePost } from '../../modules/write';
+import { updatePost, writePost } from '../../modules/write';
 
 const WriteActionButtonsContainer = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { title, body, tags, post, postError } = useSelector(({ write }) => ({
-    title: write.title,
-    body: write.body,
-    tags: write.tags,
-    post: write.post,
-    postError: write.postError,
-  }));
+  const { title, body, tags, post, postError, originalPostId } = useSelector(
+    ({ write }) => ({
+      title: write.title,
+      body: write.body,
+      tags: write.tags,
+      post: write.post,
+      postError: write.postError,
+      originalPostId: write.originalPostId,
+    }),
+  );
 
   // 포스트 등록
+  // - originalPostId 값이 존재하면 writePost 대신 updatePost 액션 생성 함수 사용하도록 수정
   const onPublish = () => {
+    if (originalPostId) {
+      dispatch(updatePost({ title, body, tags, id: originalPostId }));
+      return;
+    }
     dispatch(
       writePost({
         title,
@@ -42,7 +50,15 @@ const WriteActionButtonsContainer = () => {
     }
   }, [navigate, post, postError]);
   
-  return <WriteActionButtons onPublish={onPublish} onCancel={onCancel} />;
+  // - isEdit 라는 props 전달하여 originalPostId 값의 존재 유무에 따라 
+  //    버튼 이름을 포스트 수정 / 포스트 등록 으로 설정할 것임
+  return (
+    <WriteActionButtons
+      onPublish={onPublish}
+      onCancel={onCancel}
+      isEdit={!!originalPostId}
+    />
+  );
 };
 
 export default WriteActionButtonsContainer;
