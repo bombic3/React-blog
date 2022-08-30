@@ -1,6 +1,7 @@
 import Post from '../../models/post';
 import mongoose from 'mongoose';
 import Joi from 'joi';
+import sanitizeHtml from 'sanitize-html';
 /*
 ### ObjectId 검증
 
@@ -90,6 +91,14 @@ export const write = async (ctx) => {
   }
 };
 
+// html을 없애고 내용이 너무 길면 200자로 제한하는 함수
+const removeHtmlAndShorten = body => {
+  const filtered = sanitizeHtml(body, {
+    allowedTags: [],
+  });
+  return filtered.length < 200 ? filtered : `${filtered.slice(0, 200)}...`;
+};
+
 //- 데이터를 조회할 때는 인스턴스의 find() 함수 사용
 // - find() 함수를 호출한 후에는 exec()를 붙여 주어야 서버에 쿼리를 요청함
 // - 데이터를 조회할 때 특정 조건을 설정하고, 불러오는 제한도 설정 가능(추후 작성)
@@ -143,7 +152,8 @@ export const list = async (ctx) => {
       // lean() 함수 사용 - 데이터를 처음부터 JSON 형태로 조회가능
       ...post,
       body:
-        post.body.length < 200 ? post.body : `${post.body.slice(0, 200)}...`,
+        // post.body.length < 200 ? post.body : `${post.body.slice(0, 200)}...`,
+        removeHtmlAndShorten(post.body),
     }));
   } catch (e) {
     ctx.throw(500, e);
