@@ -51,7 +51,23 @@ const PostContent = styled.div`
   color: ${palette.gray[8]};
 `;
 
-const PostViewer = ({ post, error, loading }) => {
+/*
+- PostActionButtons 컴포넌트를 PostViewer 의 PostHead 하단에 보여줘야함
+    - 여기서 이 커모넌트를 PostViewer 에서 직접 렌더링하면,
+      나중에 PostActionButtons 에 onEdit, onRemove 등의 props 를 전달할 때
+      무조건 PostViewer를 거쳐서 전달해야 함
+    - 정작 PostViewer 내부에서는 사용하지 않지만 내부의 컴포넌트에서 필요하기 때문에
+      한 번 거쳐 전달하는 것은 비효율적, 불편함. 틀린것은 아님.
+      BUT 자칫하면 컴포넌트가 받아오는 props가 너무 많아져서 관리하기 어려워짐
+  → 이렇게 컴포넌트를 거쳐서 props를 전달하는 것 피하려면 두 가지 방법 고려
+1. PostActionButtons 의 컨테이너 컴포넌트를 만들고 PostViewer 내부에서 바로 렌더링하는 것
+2. props 를 JSX 형태로 받아 와서 렌더링하는 것
+-> 우리는 이 방법 사용
+  (굳이 컨테이너 컴포넌트를 새로 만들필요 없이 
+    기존 PostViewerContainer에서 필요한 로직을 작성하면 되기 때문)
+*/
+
+const PostViewer = ({ post, error, loading, actionButtons }) => {
   // 에러 발생시
   if (error) {
     if (error.response && error.response.status === 404) {
@@ -77,6 +93,7 @@ const PostViewer = ({ post, error, loading }) => {
         />
         <Tags tags={tags} />
       </PostHead>
+      {actionButtons}
       <PostContent
         dangerouslySetInnerHTML={{ __html: body }}
       />

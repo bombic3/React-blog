@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { readPost, unloadPost } from '../../modules/post';
 import PostViewer from '../../components/post/PostViewer';
+import PostActionButtons from '../../components/post/PostActionButtons';
+
 
 const PostViewerContainer = () => {
   // 처음 마운트될 때 포스트 읽기 API 요청
@@ -23,7 +25,14 @@ const PostViewerContainer = () => {
   }, [dispatch, postId]);
 
 
-  return <PostViewer post={post} loading={loading} error={error} />;
+  return (
+    <PostViewer
+      post={post}
+      loading={loading}
+      error={error}
+      actionButtons={<PostActionButtons />}
+    />
+  );
 };
 
 export default PostViewerContainer;
