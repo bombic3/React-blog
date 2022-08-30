@@ -12,6 +12,10 @@ const [
   WRITE_POST_SUCCESS,
   WRITE_POST_FAILURE,
 ] = createRequestActionTypes('write/WRITE_POST'); // 포스트 작성
+const SET_ORIGINAL_POST = 'write/SET_ORIGINAL_POST'; // 포스트 수정시 버튼 클릭
+// - 수정 버튼 클릭 → 글쓰기 페이지 이동, 현재 보고 있는 포스트 나타나기
+//    - write 리덕스 모듈에 SET_ORIGINAL_POST 액션 추가
+//     - SET_ORIGINAL_POST : 현재 보고 있는 포스트 정보를 write 모듈에서 관리하는 상태에 넣음
 
 export const initialize = createAction(INITIALIZE);
 export const changeField = createAction(CHANGE_FIELD, ({ key, value }) => ({
@@ -23,6 +27,7 @@ export const writePost = createAction(WRITE_POST, ({ title, body, tags }) => ({
   body,
   tags,
 }));
+export const setOriginalPost = createAction(SET_ORIGINAL_POST, post => post);
 
 // 사가 생성
 const writePostSaga = createRequestSaga(WRITE_POST, postsAPI.writePost);
@@ -36,6 +41,7 @@ const initialState = {
   tags: [],
   post: null,
   postError: null,
+  originalPostId: null,
 };
 
 const write = handleActions(
@@ -60,6 +66,14 @@ const write = handleActions(
     [WRITE_POST_FAILURE]: (state, { payload: postError }) => ({
       ...state,
       postError,
+    }),
+    // 포스트 수정 버튼
+    [SET_ORIGINAL_POST]: (state, { payload: post }) => ({
+      ...state,
+      title: post.title,
+      body: post.body,
+      tags: post.tags,
+      originalPostId: post._id,
     }),
   },
   initialState,

@@ -62,6 +62,17 @@ const Editor = ({ title, body, onChangeField }) => {
     });
   }, [onChangeField]);
 
+  /*
+  - 수정버튼 누르면 제목, 태그만 그대로고 내용은 공백으로 나타남 해결위해
+  -  내용의 초깃값도 설정되도록 Editor 컴포넌트 수정하기
+  */
+  const mounted = useRef(false);
+  useEffect(() => {
+    if (mounted.current) return;
+    mounted.current = true;
+    quillInstance.current.root.innerHTML = body;
+  }, [body]);
+
   const onChangeTitle = e => {
     onChangeField({ key: 'title', value: e.target.value });
   };
