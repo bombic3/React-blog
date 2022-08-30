@@ -39,7 +39,7 @@ const sanitizeOption = {
     's',
     'p',
     'ul',
-    '0l',
+    'ol',
     'li',
     'blockquote',
     'a',
