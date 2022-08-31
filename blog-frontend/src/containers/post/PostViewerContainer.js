@@ -5,6 +5,7 @@ import { readPost, unloadPost } from '../../modules/post';
 import PostViewer from '../../components/post/PostViewer';
 import PostActionButtons from '../../components/post/PostActionButtons';
 import { setOriginalPost } from '../../modules/write';
+import { removePost } from '../../lib/api/posts';
 // import { removePost } from '../../lib/api/posts'
 
 
@@ -19,8 +20,8 @@ const PostViewerContainer = () => {
     error: post.error,
     loading: loading['post/READ_POST'],
     user: user.user,
-  }));
-
+    }));
+  
   useEffect(() => {
     dispatch(readPost(postId));
     // 언마운트될 때 리덕스에서 포스트 데이터 없애기
@@ -34,8 +35,16 @@ const PostViewerContainer = () => {
     navigate('/write');
   };
 
-  const ownPost = (user && user._id) === (post && post.user._id);
+  const onRemove = async () => {
+    try {
+      await removePost(postId);
+      navigate('/'); // 홈으로 이동
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
+  const ownPost = (user && user._id) === (post && post.user._id);
 
   return (
     <PostViewer
@@ -43,7 +52,7 @@ const PostViewerContainer = () => {
       loading={loading}
       error={error}
       actionButtons={
-        ownPost && <PostActionButtons onEdit={onEdit} />
+        ownPost && <PostActionButtons onEdit={onEdit} onRemove={onRemove} />
       }
     />
   );
