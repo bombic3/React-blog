@@ -31,10 +31,8 @@ ID 중복 체크
 태그별 목록 모아보기
 작성자별 목록 모아보기
 ---
-## 실행화면
-<img width="1440" alt="스크린샷 2022-09-14 오후 5 06 31" src="https://user-images.githubusercontent.com/87863264/190110802-c124af20-db97-4ac8-b300-111862127fd0.png">
-<img width="1440" alt="스크린샷 2022-09-14 오후 5 07 12" src="https://user-images.githubusercontent.com/87863264/190110810-884356c6-e067-481f-815e-c3f0fa2ed255.png">
-<img width="1440" alt="스크린샷 2022-09-14 오후 5 07 25" src="https://user-images.githubusercontent.com/87863264/190110822-c9d91992-2e9a-430e-a111-74385a37b511.png">
-<img width="1440" alt="스크린샷 2022-09-14 오후 5 07 59" src="https://user-images.githubusercontent.com/87863264/190110845-cdf67859-47a1-4a12-8a9d-6493b1a01d4d.png">
-<img width="1440" alt="스크린샷 2022-09-14 오후 5 08 31" src="https://user-images.githubusercontent.com/87863264/190110863-a4783dfd-b093-440c-b484-834026469029.png">
-
+## 실행영상
+# ✨실행영상
+<a href="https://youtu.be/soZUhsGuUjg">
+<img width="1440" alt="스크린샷 2022-09-14 오후 5 06 31" src="https://user-images.githubusercontent.com/87863264/190311598-dfc51422-5bdf-45eb-a018-33356c86485b.png">
+</a>
