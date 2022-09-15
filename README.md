@@ -30,7 +30,7 @@ React와 Node.js를 활용한 블로그 웹 사이트 애플리케이션
   - Redux
 - OS/Test Browser
   - Chrome
-<br>
+
 => 다양한 라이브러리, 프레임워크, 툴 사용<br>
 => 단일 언어로 풀스택이 가능한 **Java Script** 생태계로 개발
 
